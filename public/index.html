@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cofre de Senhas - Campneus</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Cofre de Senhas</h1>
+                <p>Campneus</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
+                <button type="button" class="btn-secondary" id="forgotPasswordBtn">Esqueci minha senha</button>
+            </form>
+            <div id="loginError" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Aplicação Principal -->
+    <div id="mainApp" class="main-app" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button id="menuToggle" class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Cofre de Senhas - Campneus</h1>
+            </div>
+            <div class="header-right">
+                <span id="userInfo" class="user-info"></span>
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" data-section="dashboard" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Home/Dashboard
+                    </a></li>
+                    <li><a href="#" data-section="passwords" class="nav-link">
+                        <i class="fas fa-key"></i>
+                        Cofre de Senhas
+                    </a></li>
+                    <li><a href="#" data-section="locations" class="nav-link">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Localidades
+                    </a></li>
+                    <li class="admin-only"><a href="#" data-section="users" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        Usuários
+                    </a></li>
+                    <li><a href="#" data-section="reports" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        Relatórios
+                    </a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard -->
+            <section id="dashboardSection" class="content-section active">
+                <h2>Dashboard</h2>
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <h3>Senhas por Categoria</h3>
+                        <div id="categoryChart" class="chart-container"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Últimas Senhas Cadastradas</h3>
+                        <div id="recentPasswords" class="recent-list"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Últimas Senhas Alteradas</h3>
+                        <div id="recentlyModified" class="recent-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cofre de Senhas -->
+            <section id="passwordsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Cofre de Senhas</h2>
+                    <div class="section-actions">
+                        <input type="text" id="passwordSearch" placeholder="Filtrar senhas..." class="search-input">
+                        <select id="subcategoryFilter" class="filter-select">
+                            <option value="">Todas as subcategorias</option>
+                        </select>
+                        <button id="addPasswordBtn" class="btn-primary admin-analista-only">
+                            <i class="fas fa-plus"></i>
+                            Nova Senha
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="passwordsTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Senha</th>
+                                <th>URL</th>
+                                <th>Categoria</th>
+                                <th>Localidade</th>
+                                <th>Última Modificação</th>
+                                <th>Modificado Por</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Localidades -->
+            <section id="locationsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Localidades</h2>
+                    <button id="addLocationBtn" class="btn-primary admin-only">
+                        <i class="fas fa-plus"></i>
+                        Nova Localidade
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="locationsTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>CNPJ</th>
+                                <th>Nome</th>
+                                <th>Estado</th>
+                                <th>Cidade</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Usuários -->
+            <section id="usersSection" class="content-section">
+                <div class="section-header">
+                    <h2>Usuários</h2>
+                    <button id="addUserBtn" class="btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Novo Usuário
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="usersTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Perfil</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Relatórios -->
+            <section id="reportsSection" class="content-section">
+                <h2>Relatórios</h2>
+                <div class="reports-container">
+                    <div class="card">
+                        <h3>Exportar Dados</h3>
+                        <div class="form-group">
+                            <label>Filtrar por:</label>
+                            <select id="reportType">
+                                <option value="all">Todos os dados</option>
+                                <option value="location">Por localidade</option>
+                                <option value="category">Por categoria</option>
+                                <option value="date">Por data de atualização</option>
+                                <option value="analyst">Por analista</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="reportFilters"></div>
+                        <button id="exportBtn" class="btn-primary">
+                            <i class="fas fa-download"></i>
+                            Exportar CSV
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="passwordModalTitle">Nova Senha</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="passwordForm" class="modal-form">
+                <div class="form-group">
+                    <label for="modalSubcategory">Subcategoria *</label>
+                    <select id="modalSubcategory" name="subcategory_id" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="modalLocation">Localidade *</label>
+                    <select id="modalLocation" name="location_id" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="modalUsername">Usuário *</label>
+                    <input type="text" id="modalUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="modalPassword">Senha *</label>
+                    <input type="password" id="modalPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="modalUrl">URL</label>
+                    <input type="url" id="modalUrl" name="url">
+                </div>
+                <div class="form-group">
+                    <label for="modalNotes">Observações</label>
+                    <textarea id="modalNotes" name="notes" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="modalAnalyst">Analista Responsável</label>
+                    <select id="modalAnalyst" name="analyst_responsible">
+                        <option value="">Selecione um analista</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Carregando...</p>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
+
