@@ -89,32 +89,6 @@ class AuthController {
         }
     }
 
-    static async forgotPassword(req, res) {
-        try {
-            const { username } = req.body;
-
-            const user = await User.findByUsername(username);
-            if (!user) {
-                // Por segurança, não revelamos se o usuário existe ou não
-                return res.json({ 
-                    message: 'Se o usuário existir, instruções de recuperação foram enviadas' 
-                });
-            }
-
-            // Aqui você implementaria o envio de email com token de recuperação
-            // Por enquanto, vamos apenas simular
-            console.log(`Recuperação de senha solicitada para: ${username}`);
-
-            res.json({ 
-                message: 'Se o usuário existir, instruções de recuperação foram enviadas' 
-            });
-
-        } catch (error) {
-            console.error('Erro na recuperação de senha:', error);
-            res.status(500).json({ error: 'Erro interno do servidor' });
-        }
-    }
-
     static async changePassword(req, res) {
         try {
             const errors = validationResult(req);

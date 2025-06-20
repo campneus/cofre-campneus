@@ -35,11 +35,7 @@ function initializeApp() {
 }
 
 // Configurar event listeners
-function setupEventListeners() {
-    // Login
-    loginForm.addEventListener('submit', handleLogin);
-    document.getElementById('forgotPasswordBtn').addEventListener('click', handleForgotPassword);
-    
+function setupEventListeners()     loginForm.addEventListener("submit", handleLogin);
     // Logout
     logoutBtn.addEventListener('click', handleLogout);
     
@@ -193,28 +189,7 @@ function handleLogout() {
     localStorage.removeItem('authToken');
     showLoginScreen();
 }
-
-function handleForgotPassword() {
-    const username = prompt('Digite seu nome de usuário:');
-    if (username) {
-        fetch(`${API_BASE_URL}/auth/forgot-password`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-        })
-        .catch(error => {
-            alert('Erro ao solicitar recuperação de senha');
-        });
-    }
-}
-
-// Interface
+rface
 function showLoginScreen() {
     loginScreen.style.display = 'flex';
     mainApp.style.display = 'none';

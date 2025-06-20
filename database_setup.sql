@@ -69,9 +69,9 @@ CREATE TRIGGER trigger_update_passwords_last_modified_at
 
 -- Inserção de dados iniciais
 INSERT INTO users (username, password, role) VALUES
-    ('admin', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uIoO', 'administrador'), -- senha: admin123
-    ('loja_user', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uIoO', 'loja'), -- senha: admin123
-    ('analista_user', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uIoO', 'analista') -- senha: admin123
+    (\'admin\', \'$2b$12$r9zruDw64toZkPYVnJMebO/5JH1nhYFBJ9IzjIu0C3kaj5Yaq3hw6\', \'administrador\'), -- senha: admin123
+    (\'loja_user\', \'$2b$12$r9zruDw64toZkPYVnJMebO/5JH1nhYFBJ9IzjIu0C3kaj5Yaq3hw6\', \'loja\'), -- senha: admin123
+    (\'analista_user\', \'$2b$12$r9zruDw64toZkPYVnJMebO/5JH1nhYFBJ9IzjIu0C3kaj5Yaq3hw6\', \'analista\') -- senha: admin123
 ON CONFLICT (username) DO NOTHING;
 
 INSERT INTO categories (name) VALUES
