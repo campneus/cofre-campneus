@@ -584,7 +584,9 @@ body {
 }
 
 body.admin .admin-only,
-body.admin .admin-analista-only {
+body.admin .admin-analista-only,
+body.administrador .admin-only,
+body.administrador .admin-analista-only {
     display: block;
 }
 
