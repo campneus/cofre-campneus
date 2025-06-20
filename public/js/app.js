@@ -18,7 +18,7 @@ const sidebar = document.getElementById('sidebar');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
 // Inicialização
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function() {
     initializeApp();
     setupEventListeners();
 });
@@ -35,7 +35,8 @@ function initializeApp() {
 }
 
 // Configurar event listeners
-function setupEventListeners()     loginForm.addEventListener("submit", handleLogin);
+function setupEventListeners() {
+    loginForm.addEventListener("submit", handleLogin);
     // Logout
     logoutBtn.addEventListener('click', handleLogout);
     
