@@ -511,4 +511,341 @@ async function togglePassword(passwordId, button) {
     if (passwordSpan.textContent === '••••••••') {
         try {
             const response = await fetch(`${API_BASE_URL}/passwords/${passwordId}/reveal`, {
-(Content truncated due to size limit. Use line ranges to read in chunks)
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                passwordSpan.textContent = data.password;
+                passwordSpan.style.fontFamily = 'monospace';
+                icon.className = 'fas fa-eye-slash';
+            }
+        } catch (error) {
+            console.error('Erro ao revelar senha:', error);
+        }
+    } else {
+        passwordSpan.textContent = '••••••••';
+        passwordSpan.style.fontFamily = 'inherit';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+async function copyPassword(passwordId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/passwords/${passwordId}/reveal`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            await navigator.clipboard.writeText(data.password);
+            
+            // Feedback visual
+            const button = event.target.closest('button');
+            const originalIcon = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => {
+                button.innerHTML = originalIcon;
+            }, 1000);
+        }
+    } catch (error) {
+        console.error('Erro ao copiar senha:', error);
+    }
+}
+
+// Modais
+function openModal(modal) {
+    modal.classList.add('active');
+}
+
+function closeModal(modal) {
+    modal.classList.remove('active');
+    const form = modal.querySelector('form');
+    if (form) {
+        form.reset();
+    }
+}
+
+function openPasswordModal(passwordId = null) {
+    const modal = document.getElementById('passwordModal');
+    const title = document.getElementById('passwordModalTitle');
+    const form = document.getElementById('passwordForm');
+    
+    title.textContent = passwordId ? 'Editar Senha' : 'Nova Senha';
+    
+    // Carregar dados para os selects
+    loadPasswordModalData(passwordId);
+    
+    openModal(modal);
+}
+
+async function loadPasswordModalData(passwordId = null) {
+    try {
+        // Carregar subcategorias
+        const subcategoriesResponse = await fetch(`${API_BASE_URL}/locations/subcategories`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const subcategoriesData = await subcategoriesResponse.json();
+        
+        const subcategorySelect = document.getElementById('modalSubcategory');
+        subcategorySelect.innerHTML = '<option value="">Selecione uma subcategoria</option>';
+        subcategoriesData.subcategories.forEach(sub => {
+            const option = document.createElement('option');
+            option.value = sub.id;
+            option.textContent = `${sub.category_name} - ${sub.name}`;
+            subcategorySelect.appendChild(option);
+        });
+        
+        // Carregar localidades
+        const locationsResponse = await fetch(`${API_BASE_URL}/locations`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const locationsData = await locationsResponse.json();
+        
+        const locationSelect = document.getElementById('modalLocation');
+        locationSelect.innerHTML = '<option value="">Selecione uma localidade</option>';
+        locationsData.locations.forEach(loc => {
+            const option = document.createElement('option');
+            option.value = loc.id;
+            option.textContent = `${loc.code} - ${loc.name}`;
+            locationSelect.appendChild(option);
+        });
+        
+        // Carregar analistas
+        const usersResponse = await fetch(`${API_BASE_URL}/users`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const usersData = await usersResponse.json();
+        
+        const analystSelect = document.getElementById('modalAnalyst');
+        analystSelect.innerHTML = '<option value="">Selecione um analista</option>';
+        usersData.users.filter(user => user.role === 'analista').forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.id;
+            option.textContent = user.username;
+            analystSelect.appendChild(option);
+        });
+        
+        // Se for edição, carregar dados da senha
+        if (passwordId) {
+            const passwordResponse = await fetch(`${API_BASE_URL}/passwords/${passwordId}`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const passwordData = await passwordResponse.json();
+            const password = passwordData.password;
+            
+            document.getElementById('modalSubcategory').value = password.subcategory_id;
+            document.getElementById('modalLocation').value = password.location_id;
+            document.getElementById('modalUsername').value = password.username;
+            document.getElementById('modalPassword').value = password.password;
+            document.getElementById('modalUrl').value = password.url || '';
+            document.getElementById('modalNotes').value = password.notes || '';
+            document.getElementById('modalAnalyst').value = password.analyst_responsible || '';
+            
+            // Adicionar ID para edição
+            document.getElementById('passwordForm').dataset.passwordId = passwordId;
+        } else {
+            delete document.getElementById('passwordForm').dataset.passwordId;
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar dados do modal:', error);
+    }
+}
+
+// Placeholder para outras funções
+async function loadLocations() {
+    try {
+        showLoading();
+        const response = await fetch(`${API_BASE_URL}/locations`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayLocations(data.locations || []);
+        } else {
+            console.error('Erro ao carregar localidades');
+        }
+    } catch (error) {
+        console.error('Erro ao carregar localidades:', error);
+    } finally {
+        hideLoading();
+    }
+}
+
+function displayLocations(locations) {
+    const tbody = document.querySelector('#locationsTable tbody');
+    tbody.innerHTML = '';
+    
+    locations.forEach(location => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${location.code}</td>
+            <td>${location.cnpj || '-'}</td>
+            <td>${location.name}</td>
+            <td>${location.state || '-'}</td>
+            <td>${location.city || '-'}</td>
+            <td>
+                <button class="btn-icon" onclick="editLocation(${location.id})" title="Editar">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon" onclick="deleteLocation(${location.id})" title="Excluir">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+async function loadUsers() {
+    console.log('Carregando usuários...');
+}
+
+async function loadReports() {
+    console.log('Carregando relatórios...');
+}
+
+function editPassword(id) {
+    openPasswordModal(id);
+}
+
+function deletePassword(id) {
+    if (confirm('Tem certeza que deseja excluir esta senha?')) {
+        // Implementar exclusão
+        console.log('Excluindo senha:', id);
+    }
+}
+
+function editLocation(id) {
+    openLocationModal(id);
+}
+
+function deleteLocation(id) {
+    if (confirm('Tem certeza que deseja excluir esta localidade?')) {
+        performDeleteLocation(id);
+    }
+}
+
+async function performDeleteLocation(id) {
+    try {
+        showLoading();
+        const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            loadLocations(); // Recarregar a lista
+        } else {
+            alert('Erro ao excluir localidade');
+        }
+    } catch (error) {
+        console.error('Erro ao excluir localidade:', error);
+        alert('Erro ao excluir localidade');
+    } finally {
+        hideLoading();
+    }
+}
+
+function openLocationModal(id = null) {
+    const modal = document.getElementById('locationModal');
+    const modalTitle = document.getElementById('locationModalTitle');
+    const form = document.getElementById('locationForm');
+    
+    if (id) {
+        modalTitle.textContent = 'Editar Localidade';
+        loadLocationData(id);
+    } else {
+        modalTitle.textContent = 'Nova Localidade';
+        form.reset();
+    }
+    
+    modal.classList.add('active');
+}
+
+async function loadLocationData(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const location = data.location;
+            
+            document.getElementById('modalLocationCode').value = location.code;
+            document.getElementById('modalLocationCnpj').value = location.cnpj || '';
+            document.getElementById('modalLocationName').value = location.name;
+            document.getElementById('modalLocationState').value = location.state || '';
+            document.getElementById('modalLocationCity').value = location.city || '';
+            document.getElementById('locationForm').dataset.locationId = id;
+        }
+    } catch (error) {
+        console.error('Erro ao carregar dados da localidade:', error);
+    }
+}
+
+async function handleLocationSubmit(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    const locationId = form.dataset.locationId;
+    
+    const locationData = {
+        code: formData.get('code'),
+        cnpj: formData.get('cnpj'),
+        name: formData.get('name'),
+        state: formData.get('state'),
+        city: formData.get('city')
+    };
+    
+    try {
+        showLoading();
+        
+        const url = locationId 
+            ? `${API_BASE_URL}/locations/${locationId}`
+            : `${API_BASE_URL}/locations`;
+        
+        const method = locationId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(locationData)
+        });
+        
+        if (response.ok) {
+            closeModal(document.getElementById('locationModal'));
+            loadLocations(); // Recarregar a lista
+        } else {
+            const errorData = await response.json();
+            alert(errorData.message || 'Erro ao salvar localidade');
+        }
+    } catch (error) {
+        console.error('Erro ao salvar localidade:', error);
+        alert('Erro ao salvar localidade');
+    } finally {
+        hideLoading();
+    }
+}
+
+function openUserModal() {
+    console.log('Abrindo modal de usuário');
+}
+
+function handleExport() {
+    console.log('Exportando dados');
+}
+
